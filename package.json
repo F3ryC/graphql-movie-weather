@@ -1,0 +1,21 @@
+{
+  "name": "graphql-movie-weather",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js",
+    "dev": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@apollo/server": "^4.12.2",
+    "express": "^5.1.0",
+    "graphql": "^16.11.0",
+    "nodemon": "^3.1.10"
+  }
+}
