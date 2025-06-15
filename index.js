@@ -20,11 +20,19 @@ const typeDefs = `#graphql
     poster: String    # URL to a poster image, might be missing
     actors: [String]  # An array of strings for actor names
   }
+
+  # New Weather type definition
+type Weather {
+  city: String!
+  temperature: Float! # Temperature can have decimal points
+  conditions: String! # e.g., "Sunny", "Cloudy", "Rain"
+}
   
   type Query {
     hello: String
     # A field to query for a single movie by its ID
     movie(id: ID!): Movie
+    weather(city: String!): Weather # New field to query weather by city
   }
 `;
 
@@ -51,6 +59,18 @@ const resolvers = {
         actors: ['Actor One', 'Actor Two', 'Actor Three'], // An array of actors
       };
     },
+    // New resolver for the "weather" query
+    weather: (parent, args, context, info) => {
+      // For now, we'll return a hardcoded weather object
+      // based on the 'city' argument.
+      console.log(`Fetching weather for city: ${args.city}`);
+      return {
+        city: args.city, // Return the city that was requested
+        temperature: 25.5, // Dummy temperature in Celsius
+        conditions: 'Partly Cloudy', // Dummy conditions
+      };
+    },
+// ...
   },
 };
 
