@@ -1,8 +1,10 @@
 // index.js
+import 'dotenv/config'; // Loads environment variables from .env
 import express from 'express';
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
 import cors from 'cors';
+import axios from 'axios'; // Import axios for making HTTP requests
 
 
 // Static Geolocation data
@@ -111,7 +113,8 @@ const resolvers = {
     hello: () => {
       return 'Hello from your GraphQL API!';
     },
-    // New resolver for the "movie" query
+    // OLD resolver for the "movie" query
+    /*
     movie: (parent, args, context, info) => {
       // In a real application, you'd fetch this from a database or external API.
       // For now, we return a hardcoded movie object based on the 'id' argument.
@@ -124,6 +127,40 @@ const resolvers = {
         poster: 'https://via.placeholder.com/150/0000FF/FFFFFF?text=GraphQL+Movie', // A dummy image URL
         actors: ['Actor One', 'Actor Two', 'Actor Three'], // An array of actors
       };
+    }
+    */
+    // New resolver for the "movie" query
+     movie: async (parent, args, context, info) => {
+      const { id } = args;
+      const OMDB_API_KEY = process.env.OMDB_API_KEY;
+
+      try {
+        console.log(`Fetching movie with ID: ${args.id}`);
+        console.log(`Using OMDb API Key: ${OMDB_API_KEY}`);
+        console.log(`OMDb API URL: http://www.omdbapi.com/?apikey=${OMDB_API_KEY}&i=${id}`);
+        
+        const response = await axios.get(`http://www.omdbapi.com/?apikey=${OMDB_API_KEY}&i=${id}`);
+        const omdbData = response.data;
+
+        if (omdbData.Response === 'False') {
+          console.error(`OMDb Error: ${omdbData.Error}`);
+          return null;
+        }
+
+        return {
+          title: omdbData.Title,
+          year: omdbData.Year,
+          director: omdbData.Director,
+          plot: omdbData.Plot,
+          poster: omdbData.Poster,
+          actors: omdbData.Actors.split(', ').map(actor => actor.trim()),
+        };
+
+        console.log(`movie with ID: ${args.id} has been fetched successfully`);
+      } catch (error) {
+        console.error('Error fetching movie from OMDb:', error.message);
+        throw new Error(`Failed to fetch movie with ID ${id}: ${error.message}`);
+      }
     },
     // New resolver for the "weather" query
     weather: (parent, args, context, info) => {
@@ -136,7 +173,6 @@ const resolvers = {
         conditions: 'Partly Cloudy', // Dummy conditions
       };
     },
-// ...
   },
 };
 
